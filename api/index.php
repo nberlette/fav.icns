@@ -1,43 +1,38 @@
 <?php
-error_reporting(0);
-$_DEBUG_MODE = isset($_GET['debug']);
-$_CACHE_PATH = "../cache";
+  /**
+   * @fileoverview 
+   */
+  error_reporting(0);
+  require_once('Favicon.class.php');
 
-$url = isset($_GET['url']) ? $_GET['url'] : 'http://n.berlette.com';
+  $_DEBUG_MODE = isset($_GET['debug']);
+  $url = isset($_GET['url']) ? $_GET['url'] : 'http://n.berlette.com';
 
-if (substr($url, 0, 4) !== "http") {
-	$url = "http://".$url;
-}
+  if (substr($url, 0, 4) !== "http") $url = "http://".$url;
 
-$parse = parse_url($url);
-$domain = $parse['host'];
-$favicon_path = '../cache/' . str_replace('.', '-', $domain) . '.png';
-$one_day = (60 * 60 * 24);
-$one_week = $one_day * 7;
-$one_month = $one_day * 30;
+  $fallback_path = '../default.png';
+  $favicon = new FaviconClass($url);
 
-header('Content-Type: image/png;charset=utf-8');
-if ($_DEBUG_MODE) {
-    header('Cache-Control: public, s-maxage=600, max-age=600, stale-while-revalidate=60');
-} else {
-    header('Cache-Control: public,s-maxage='.$one_week.',stale-while-revalidate=3600,stale-if-error='.$one_day);
-}
-if (file_exists($favicon_path)) {
-    if (isset($_GET['refresh'])) {
-        @unlink($favicon_path);
-    } else {
-        die(file_get_contents($favicon_path));
-    }
-}
-require_once('Favicon.class.php');
-$favicon = new FaviconClass($_GET['url']);
-if ($_DEBUG_MODE) {
-  $favicon->debug();
-}
-if (!$favicon->icoExists) {
-  die(file_get_contents($fallback_path));
-}
-file_put_contents($favicon_path, $favicon->icoData);
-die($favicon->icoData);
+  if ($_DEBUG_MODE) $favicon->debug();
 
+  $parse = parse_url($url);
+  $domain = $parse['host'];
+
+  header('Content-Type: image/png;charset=utf-8');
+
+  if ($_DEBUG_MODE) {
+      header('Cache-Control: public, s-maxage=600, max-age=600, stale-while-revalidate=60');
+  } else {
+    $one_day = (60 * 60 * 24);
+    header('Cache-Control: public, s-maxage=' . ($one_day * 14) . ',stale-while-revalidate=' . $one_day . ', stale-if-error=' . ($one_day * 3));
+  }
+
+  if ($favicon->icoExists) {
+    $data = $favicon->icoData;
+  } else {
+    $data = file_get_contents($fallback_path);
+  }
+  
+  header('Content-Length: '. strlen($data));
+  die($data);
 ?>
