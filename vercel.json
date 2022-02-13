@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "functions": {
+    "api/*.php": {
+      "runtime": "vercel-php@0.4.0"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/:url*",
+      "destination": "/api/index.php?url=:url"
+    }
+  ]
+}
