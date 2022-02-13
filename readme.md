@@ -1,24 +1,31 @@
-# favicons
-Favicons for all!
+# [fvicns.vercel.app]
 
-## How to use
-It's really easy to use this!
+Favicon fetcher API built in 100% PHP, shipped with [Vercel].
 
-You'll need PHP (5.6+ or 7 is recommended)
+## Usage
 
-By default favicon images are stored in 'cache' directory, but you can change this easily by adjusting the constant at the top of the `index.php` file.
-
-It's currently set to the same root directory as this code:
-```
-$_CACHE_PATH = "cache";
+```bash
+https://fvicns.vercel.app/gitpod.io
+https://fvicns.now.sh/reddit.com.png
+https://fvicns.now.sh/flourd.com.png
+https://fvicns.vercel.app/?url=github.com
 ```
 
-But you can change it to write to somewhere else, e.g.:
-```
-$_CACHE_PATH = "../favicon_cache";    // one directory up
-```
+### Cache-Control
 
-Make sure that the cache directory is writable by the web application user, or whoever triggers the execution of the PHP script.
+- [x] 1 wk (604800) `s-maxage` cache on the CDN
+- [x] 1 hour (3600) `stale-while-revalidate` (SWR)
+- [x] 1 day (86400) `stale-if-error` (SIE).
 
-## What to call
-http://wherever_you_have_hosted_this.com/favicons/?url=https://www.youtube.com
+## License
+
+[MIT] © [Nicholas Berlette] — related: [icns.ml] · [vercel-php]
+
+[fvicns.vercel.app]: https://fvicns.vercel.app
+[MIT]: https://mit-license.org
+[Vercel]: https://vercel.com
+[Nicholas Berlette]: https://github.com/nberlette
+[nberlette/icns]: https://github.com/nberlette/icns
+[icns.ml]: https://icns.ml
+[vercel-php]: https://github.com/juicyfx/vercel-php
+[vercel-examples]: https://github.com/juicyfx/vercel-examples
