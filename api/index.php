@@ -1,38 +1,41 @@
 <?php
-  /**
-   * @fileoverview 
-   */
   error_reporting(0);
   require_once('Favicon.class.php');
 
-  $_DEBUG_MODE = isset($_GET['debug']);
-  $url = isset($_GET['url']) ? $_GET['url'] : 'http://n.berlette.com';
+  $_DEBUG_MODE = isset($_GET['debug']) || false;
+  $_NO_CACHE = isset($_GET['refresh']) || isset($_GET['no-cache']) ? true : false;
 
-  if (substr($url, 0, 4) !== "http") $url = "http://".$url;
+  $url = 'n.berlette.com';
+  if (isset($_GET['url'])) {
+    $url = $_GET['url'];
+  } 
+  if (isset($_POST['url'])) {
+    $url = $_POST['url'];
+    $_NO_CACHE = true;
+  }
+  if (substr($url, 0, 4) !== 'http') {
+    $url = 'http://'.$url;
+  }
+  $url = filter_var($url, FILTER_SANITIZE_URL);
+  $parts = @parse_url($url);
+  $url = 'http://'.$parts['host'];
 
-  $fallback_path = '../default.png';
   $favicon = new FaviconClass($url);
-
   if ($_DEBUG_MODE) $favicon->debug();
 
-  $parse = parse_url($url);
-  $domain = $parse['host'];
+  $fallback_path = '../default.png';
 
   header('Content-Type: image/png;charset=utf-8');
-
-  if ($_DEBUG_MODE) {
-      header('Cache-Control: public, s-maxage=600, max-age=600, stale-while-revalidate=60');
+  if ($_NO_CACHE) {
+    header('Cache-Control: public, no-cache, must-revalidate');  
+  } elseif ($_DEBUG_MODE) {
+    header('Cache-Control: public, s-maxage=900, stale-while-revalidate=60');
   } else {
-    $one_day = (60 * 60 * 24);
-    header('Cache-Control: public, s-maxage=' . ($one_day * 14) . ',stale-while-revalidate=' . $one_day . ', stale-if-error=' . ($one_day * 3));
+    $day = 60 * 60 * 24;
+    header('Cache-Control: public,s-maxage='.($day*14).',stale-while-revalidate='.$day.',stale-if-error='.($day*3));
   }
 
-  if ($favicon->icoExists) {
-    $data = $favicon->icoData;
-  } else {
-    $data = file_get_contents($fallback_path);
-  }
-  
+  $data = $favicon->icoExists ? $favicon->icoData : @file_get_contents($fallback_path);
   header('Content-Length: '. strlen($data));
   die($data);
 ?>
