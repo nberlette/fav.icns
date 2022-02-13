@@ -1,16 +1,33 @@
 {
-  "version": 2,
-  "cleanUrls": true,
-  "trailingSlash": false,
   "functions": {
     "api/*.php": {
       "runtime": "vercel-php@0.4.0"
     }
   },
-  "rewrites": [
+  "routes": [
     {
-      "source": "/:url*",
-      "destination": "/api/index.php?url=:url"
+      "src": "/(?<url>.*?)(?:\\.(?<ext>ico|png|svg|jpe?g|gif|webp))?",
+      "dest": "api/index.php?url=$url&ext=$ext",
+      "methods": [
+        "GET"
+      ],
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "image/png;charset=utf-8",
+        "Cache-Control": "public, s-maxage=604800, stale-while-revalidate=3600, stale-if-error=86400"
+      }
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/.*",
+      "dest": "api/index.php?url=n.berlette.com&ext=png",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "image/png;charset=utf-8",
+        "Cache-Control": "public, s-maxage=604800, stale-while-revalidate=3600, stale-if-error=86400"
+      }
     }
   ]
 }
